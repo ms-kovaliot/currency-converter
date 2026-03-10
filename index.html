@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAH Transfer Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 28px;
+    }
+
+    .input-group {
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-badge {
+      position: absolute;
+      left: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 14px 14px 14px 40px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1a2e;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: #4f46e5;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #f3f4f6;
+      margin-bottom: 24px;
+    }
+
+    .result {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .result-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .result-value.highlight {
+      color: #4f46e5;
+    }
+
+    .result-value.secondary {
+      color: #059669;
+    }
+
+    .result-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: #9ca3af;
+      margin-left: 4px;
+    }
+
+    .rates-box {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .rates-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+    }
+
+    .rate-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .rate-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .rate-row span:last-child {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .rate-timestamp {
+      font-size: 11px;
+      color: #d1d5db;
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .refresh-btn:hover {
+      background: #f9fafb;
+      color: #374151;
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .refresh-icon {
+      display: inline-block;
+      transition: transform 0.5s;
+    }
+
+    .refresh-icon.spinning {
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 16px;
+      color: #ef4444;
+    }
+
+    .placeholder {
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>UAH Transfer Calculator</h1>
+
+    <div class="input-group">
+      <label>They're asking for</label>
+      <div class="input-wrap">
+        <span class="currency-badge">$</span>
+        <input
+          id="usd-input"
+          type="number"
+          inputmode="decimal"
+          placeholder="0"
+          min="0"
+          autofocus
+        />
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="result">
+      <div class="result-row">
+        <span class="result-label">Send them</span>
+        <span>
+          <span class="result-value highlight" id="uah-result">—</span>
+          <span class="result-unit">UAH</span>
+        </span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Transfer to exchange</span>
+        <span>
+          <span class="result-value secondary" id="eur-result">—</span>
+          <span class="result-unit">EUR</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="rates-box">
+      <div class="rates-title">Monobank rates</div>
+      <div class="rate-row">
+        <span>USD → UAH (bank sells)</span>
+        <span id="rate-usd-uah">—</span>
+      </div>
+      <div class="rate-row">
+        <span>EUR → UAH (bank buys)</span>
+        <span id="rate-eur-uah">—</span>
+      </div>
+      <div class="rate-timestamp" id="rate-timestamp"></div>
+    </div>
+
+    <button class="refresh-btn" id="refresh-btn" onclick="fetchRates()">
+      <span class="refresh-icon" id="refresh-icon">↻</span>
+      <span class="btn-label">Refresh rates</span>
+    </button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const USD = 840;
+    const EUR = 978;
+    const UAH = 980;
+
+    let rateUsdSell = null; // UAH per 1 USD (bank sells USD)
+    let rateEurBuy = null;  // UAH per 1 EUR (bank buys EUR)
+
+    const COOLDOWN_S = 60;
+    let cooldownTimer = null;
+
+    function startCooldown() {
+      const btn = document.getElementById("refresh-btn");
+      let remaining = COOLDOWN_S;
+
+      btn.disabled = true;
+      btn.querySelector(".btn-label").textContent = `Refresh rates (${remaining}s)`;
+
+      cooldownTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(cooldownTimer);
+          btn.disabled = false;
+          btn.querySelector(".btn-label").textContent = "Refresh rates";
+        } else {
+          btn.querySelector(".btn-label").textContent = `Refresh rates (${remaining}s)`;
+        }
+      }, 1000);
+    }
+
+    function formatNumber(n, decimals = 2) {
+      return n.toLocaleString("uk-UA", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    }
+
+    function calculate() {
+      const usd = parseFloat(document.getElementById("usd-input").value);
+      const uahEl = document.getElementById("uah-result");
+      const eurEl = document.getElementById("eur-result");
+
+      if (!rateUsdSell || !rateEurBuy || isNaN(usd) || usd <= 0) {
+        uahEl.textContent = "—";
+        eurEl.textContent = "—";
+        return;
+      }
+
+      const uah = usd * rateUsdSell;
+      const eur = uah / rateEurBuy;
+
+      uahEl.textContent = formatNumber(uah, 0);
+      eurEl.textContent = formatNumber(eur, 2);
+    }
+
+    async function fetchRates() {
+      const btn = document.getElementById("refresh-btn");
+      const icon = document.getElementById("refresh-icon");
+      const status = document.getElementById("status");
+
+      btn.disabled = true;
+      icon.classList.add("spinning");
+      status.textContent = "";
+
+      try {
+        const res = await fetch("https://api.monobank.ua/bank/currency");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const usdUah = data.find(r => r.currencyCodeA === USD && r.currencyCodeB === UAH);
+        const eurUah = data.find(r => r.currencyCodeA === EUR && r.currencyCodeB === UAH);
+
+        if (!usdUah || !eurUah) throw new Error("Pairs not found in response");
+
+        rateUsdSell = usdUah.rateSell;
+        rateEurBuy = eurUah.rateBuy;
+
+        document.getElementById("rate-usd-uah").textContent = formatNumber(rateUsdSell, 4);
+        document.getElementById("rate-eur-uah").textContent = formatNumber(rateEurBuy, 4);
+
+        const ts = new Date(usdUah.date * 1000);
+        document.getElementById("rate-timestamp").textContent =
+          "Updated " + ts.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" });
+
+        calculate();
+      } catch (err) {
+        status.textContent = "Could not load rates. " + err.message;
+      } finally {
+        icon.classList.remove("spinning");
+        startCooldown();
+      }
+    }
+
+    document.getElementById("usd-input").addEventListener("input", calculate);
+
+    // Load rates on startup
+    fetchRates();
+  </script>
+</body>
+</html>
