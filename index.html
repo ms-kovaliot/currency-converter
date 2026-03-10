@@ -366,8 +366,11 @@
         document.getElementById("rate-eur-uah").textContent = formatNumber(rateEurBuy, 4);
 
         const ts = new Date(usdUah.date * 1000);
+        const time = ts.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" });
+        const day = ts.getDate();
+        const month = ts.toLocaleString("en-GB", { month: "long" });
         document.getElementById("rate-timestamp").textContent =
-          "Updated " + ts.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" });
+          `Updated ${time}, ${day} ${month}`;
 
         calculate();
       } catch (err) {
